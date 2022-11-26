@@ -8,10 +8,11 @@ import com.example.nasa.domain.PictureOfDay
 @Entity
 data class DatabasePictureOfDay constructor(
     @PrimaryKey
-    val url : String,
+    val url: String,
     val date: String,
-    val mediaType : String,
-    val title : String)
+    val mediaType: String,
+    val title: String,
+)
 
 fun DatabasePictureOfDay.asDomainModel(): PictureOfDay {
     return PictureOfDay(url, mediaType, title)
@@ -27,7 +28,8 @@ data class DatabaseAsteroid constructor(
     val estimatedDiameter: Double,
     val relativeVelocity: Double,
     val distanceFromEarth: Double,
-    val isPotentiallyHazardous: Boolean)
+    val isPotentiallyHazardous: Boolean,
+)
 
 fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
     return map {

@@ -1,19 +1,17 @@
 package com.example.nasa;
 
-import android.app.Application;
+import android.app.Application
 import android.os.Build
 import androidx.work.*
 import com.example.nasa.work.RefreshDataWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
-class AsteroidRadarApplication  : Application() {
-
+class AsteroidRadarApplication : Application() {
     private val applicationScope = CoroutineScope(Dispatchers.Default)
-
     private fun delayedInit() {
         applicationScope.launch {
             setupRecurringWork()
@@ -30,19 +28,14 @@ class AsteroidRadarApplication  : Application() {
                     setRequiresDeviceIdle(true)
                 }
             }.build()
-
-        val repeatingRequest
-                = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+        val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
             .setConstraints(constraints)
             .build()
-
         WorkManager.getInstance().enqueueUniquePeriodicWork(
             RefreshDataWorker.WORK_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
             repeatingRequest)
     }
-
-
 
     override fun onCreate() {
         super.onCreate()

@@ -6,14 +6,13 @@ import com.example.nasa.domain.Asteroid
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-
 @JsonClass(generateAdapter = true)
 data class NetworkPictureOfDay(
-    val url : String,
-    val date : String,
-    @Json(name = "media_type") val mediaType : String,
-    val title : String)
-
+    val url: String,
+    val date: String,
+    @Json(name = "media_type") val mediaType: String,
+    val title: String,
+)
 
 fun NetworkPictureOfDay.asDatabaseModel(): DatabasePictureOfDay {
     return DatabasePictureOfDay(
@@ -23,7 +22,6 @@ fun NetworkPictureOfDay.asDatabaseModel(): DatabasePictureOfDay {
         title
     )
 }
-
 
 fun List<Asteroid>.asDatabaseModel(): Array<DatabaseAsteroid> {
     return map {

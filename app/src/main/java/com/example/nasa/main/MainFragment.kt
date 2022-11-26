@@ -4,33 +4,27 @@ import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.example.nasa.R
-import com.example.nasa.databinding.AsteroidItemBinding
 import com.example.nasa.databinding.FragmentMainBinding
-import com.example.nasa.domain.Asteroid
 import com.example.nasa.network.AsteroidApiFilter
-
 import timber.log.Timber
 
+@Suppress("DEPRECATION")
 class MainFragment : Fragment() {
 
-    private val viewModel: MainViewModel by lazy {
+    private val viewModel: ViewModel by lazy {
         val activity = requireNotNull(this.activity) {}
         ViewModelProvider(
             this,
-            MainViewModel.Factory(activity.application)
-        )[MainViewModel::class.java]
+            ViewModelFactory(activity.application)
+        )[ViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val binding = DataBindingUtil.inflate<FragmentMainBinding>(
             inflater,
@@ -42,95 +36,38 @@ class MainFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        binding.asteroidRecycler.adapter = MainAdapter(MainAdapter.OnClickListener {
-            // When an asteroid is clicked this block or lambda will be called by MainAdapter
-            Timber.i("Asteroid clicked: %s", it.codename)
+        binding.asteroidRecycler.adapter = CustomAdapter(CustomAdapter.OnClickListener {
+            Timber.i("Asteroid clicked Complete: %s", it.codename)
             viewModel.displayAsteroidDetails(it)
         })
 
-        // Observe the navigateToSelectedAsteroid LiveData and Navigate when it isn't null
-        // After navigating, call displayAsteroidDetailsComplete() so that the ViewModel is ready
-        // for another navigation event.
-        viewModel.navigateToSelectedProperty.observe(viewLifecycleOwner, Observer {
+        viewModel.navigateToSelectedProperty.observe(viewLifecycleOwner) {
             if (null != it) {
-                // Must find the NavController from the Fragment
                 this.findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
-                // Tell the ViewModel we've made the navigate call to prevent multiple navigation
                 viewModel.displayAsteroidDetailsComplete()
             }
-        })
-
+        }
 
         setHasOptionsMenu(true)
         return binding.root
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.main_overflow_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.updateFilter(
             when (item.itemId) {
-                R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK
-                R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY
-                else -> AsteroidApiFilter.SHOW_SAVED
+                R.id.show_week_menu -> AsteroidApiFilter.WEEK
+                R.id.show_today_menu -> AsteroidApiFilter.TODAY
+                else -> AsteroidApiFilter.SAVED
             }
         )
         return true
     }
 }
 
-
-class MainAdapter(val onClickListener: OnClickListener) :
-    ListAdapter<Asteroid, MainAdapter.MainViewHolder>(
-        DiffCallback
-    ) {
-
-
-    class MainViewHolder(val viewDataBinding: AsteroidItemBinding) :
-        RecyclerView.ViewHolder(viewDataBinding.root) {
-        fun bind(asteroid: Asteroid) {
-            viewDataBinding.asteroid = asteroid
-            // This is important, because it forces the data binding to execute immediately,
-            // which allows the RecyclerView to make the correct view size measurements
-            viewDataBinding.executePendingBindings()
-        }
-    }
-
-
-    companion object DiffCallback : DiffUtil.ItemCallback<Asteroid>() {
-        override fun areItemsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean {
-            return oldItem === newItem
-        }
-
-        override fun areContentsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean {
-            return oldItem.id == newItem.id
-        }
-    }
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        return MainViewHolder(
-            AsteroidItemBinding.inflate(
-                LayoutInflater.from(parent.context),parent,false
-            )
-        )
-    }
-
-
-    override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        val asteroid = getItem(position)
-        holder.itemView.setOnClickListener {
-            onClickListener.onClick(asteroid)
-        }
-        holder.bind(asteroid)
-    }
-
-
-    class OnClickListener(val clickListener: (asteroid: Asteroid) -> Unit) {
-        fun onClick(asteroid: Asteroid) = clickListener(asteroid)
-    }
-
-}
