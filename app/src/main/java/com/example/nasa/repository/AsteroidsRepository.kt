@@ -23,9 +23,7 @@ class AsteroidsRepository(private val database:NasaDatabase) {
     val week = Utils.convertDateStringToFormattedString(
         Utils.addDaysToDate(Calendar.getInstance().time, 7),
         Constants.API_QUERY_DATE_FORMAT)
-    /**
-     * Asteroids that can be shown on the screen.
-     */
+
     val asteroidsSaved: LiveData<List<Asteroid>> =
         Transformations.map(database.asteroidDao.getAllAsteroids()) {
             it.asDomainModel()
@@ -39,15 +37,7 @@ class AsteroidsRepository(private val database:NasaDatabase) {
             it.asDomainModel()
         }
 
-    /**
-     * Refresh the asteroids stored in the offline cache.
-     *
-     * This function uses the IO dispatcher to ensure the database insert database operation
-     * happens on the IO dispatcher. By switching to the IO dispatcher using `withContext` this
-     * function is now safe to call from any thread including the Main thread.
-     *
-     * To actually load the asteroids for use, observe [asteroids]
-     */
+
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
             // Try statement is used to catch Network Exceptions so the app does not

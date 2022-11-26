@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -56,8 +55,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/app_background"
-                android:padding="16dp"
                 android:contentDescription="@{@string/hazardous_description(asteroid.isPotentiallyHazardous)}"
+                android:padding="16dp"
                 app:statusIcon="@{asteroid.isPotentiallyHazardous}" />
 
         </LinearLayout>
